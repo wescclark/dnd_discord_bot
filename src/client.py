@@ -44,6 +44,7 @@ class Bot(commands.Bot):
         Ignore bots.  
         Ignore self.
         """
+        
         if message.author.bot: 
             return
         await self.process_commands(message)
