@@ -3,13 +3,13 @@ import asyncio
 import logging
 import discord
 from discord.ext import commands
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from bot_config import Config
 from cogs.basic import Greetings
 
 configuration = Config()
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 discord_oauth = os.getenv('DISCORD_TOKEN')
 
@@ -20,7 +20,6 @@ async def run_bot():
     """
     bot = Bot()
     bot.add_cog(Greetings(bot))
-    print(bot.cogs)
     try: 
         await bot.start(discord_oauth)
     except KeyboardInterrupt:
@@ -45,6 +44,9 @@ class Bot(commands.Bot):
         Ignore bots.  
         Ignore self.
         """
+        if message.author.bot: 
+            return
+        await self.process_commands(message)
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
