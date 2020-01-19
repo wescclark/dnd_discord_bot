@@ -12,3 +12,12 @@ class Greetings(commands.Cog):
         """
         member = ctx.author
         await ctx.send(f'NI HAO {member}')
+
+    @commands.command()
+    async def ping(self,ctx):
+        """
+        Another test command
+        """
+        pinger = ctx.author
+        bot_name = self.bot.user.name
+        await ctx.send(f"{pinger} sent a ping to {bot_name}")
