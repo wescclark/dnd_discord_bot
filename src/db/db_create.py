@@ -15,3 +15,10 @@ def db_init():
     engine = load_engine(user,password,hostname,port,database)
     if not database_exists(engine.url):
         create_database(engine.url)
+
+class GuildInfo(base):
+    __tablename__ = 'guild_info'
+
+    name = Column(String,primary_key=True,nullable=False)
+    xp = Column(Integer)
+    level = Column(Integer) 
