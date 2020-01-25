@@ -31,7 +31,7 @@ async def run_bot():
     
     engine, ses = db.connect(file_loc)
     bot = Bot(engine = engine,session = ses)
-    bot.add_cog(Greetings(bot))
+    bot.add_cog(Basic(bot))
     bot.add_cog(WM_Commands(bot))
     print(engine.url)
     try: 

@@ -9,7 +9,11 @@ class WM_Commands(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def add_user(self, ctx, player_name: str, player_class: str):
+    async def add_player(self, ctx, player_name: str, player_class: str):
+        """
+        Owner Command Only
+        wm!add_player Playername Classname (defaults to 0 xp) 
+        """
         new_player = GuildInfo(player_name = player_name, 
         player_class = player_class)
         self.session.add(new_player)
@@ -18,12 +22,18 @@ class WM_Commands(commands.Cog):
         await ctx.send(new_player)
     
     @commands.command()
-    async def list_all_users(self,ctx):
+    async def list_all_players(self,ctx):
+        """
+        Prints all player info out.
+        """
         char_list = self.session.query(GuildInfo).all()
         await ctx.send([char for char in char_list])
     
     @commands.command()
     async def char_info(self,ctx,player_name: str):
+        """
+        wm!info PlayerName --> wm!info Zaphikel
+        """
         print(player_name)
         char = self.session.query(GuildInfo).\
             filter(GuildInfo.player_name == player_name).one()
@@ -36,7 +46,11 @@ class WM_Commands(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def update_user_xp(self,ctx,player_name: str, xp: int):
+    async def update_player_xp(self,ctx,player_name: str, xp: int):
+        """
+        Owner Command Only
+        wm!update_player_xp --> wm!update_player_xp Zaphikel 1000
+        """
         player = self.session.query(GuildInfo).\
             filter(GuildInfo.player_name == player_name).one()
         player.current_xp = xp
