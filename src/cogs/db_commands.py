@@ -43,7 +43,7 @@ class WM_Commands(commands.Cog):
         self.session.commit()
         
         player_query = self.session.query(GuildInfo).\
-            filter(GuildInfo.player_name == player_name)
+            filter(GuildInfo.player_name == player_name).one()
         
         await ctx.send(f'{player_query.player_name} has a new XP value of {player_query.current_xp}')
 
