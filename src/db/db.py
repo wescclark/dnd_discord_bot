@@ -1,23 +1,26 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, String, Integer
+from sqlalchemy.ext.declarative import declarative_base
 import json
 
-def load_engine(user,password,hostname,port,database):
-    engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{hostname}:{port}/{database}')
+Base = declarative_base()
+
+def load_engine(file_loc):
+    #engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{hostname}:{port}/{database}')
+    print(file_loc)
+    engine = create_engine(f'sqlite:///{file_loc}',echo=True)
     return engine
 
 def create_session(engine):
-    return sessionmaker(bind=engine,autocommit=True)
+    return sessionmaker(bind=engine)
 
-def connect(user,password,db,host='localhost',port=5432):
+def connect(file_loc):
+    engine = load_engine(file_loc)
+    ses = create_session(engine)
+    session = ses()
+    
 
-    engine = load_engine(user,password,hostname,port,db)
-    session = create_session(engine)
-    meta = MetaData(bind=engine,reflect=True)
+    return engine, session
 
-class GuildInfo(base):
-    __tablename__ = 'guild_info'
 
-    name = Column(String,primary_key=True)
-    xp = Column(Integer) 
