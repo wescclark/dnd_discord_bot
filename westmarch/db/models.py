@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Integer
 import bisect
-from .db import Base
+from westmarch.db.db import Base
 
 player_level_range = [
     (0,1),

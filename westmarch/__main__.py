@@ -4,11 +4,11 @@ import logging
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv, find_dotenv
-from bot_config import Config
-from cogs.basic import Greetings
-from cogs.db_commands import WM_Commands
-from db import db
-from db import models
+from westmarch.bot_config import Config
+from westmarch.cogs.basic import Basic
+from westmarch.cogs.db_commands import WM_Commands
+from westmarch.db import db
+from westmarch.db import models
 
 
 configuration = Config()

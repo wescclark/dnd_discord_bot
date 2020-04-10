@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-from db.models import * 
+from westmarch.db.models import * 
 
 class WM_Commands(commands.Cog):
     def __init__(self,bot):

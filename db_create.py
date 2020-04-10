@@ -1,9 +1,10 @@
 from sqlalchemy_utils import database_exists, create_database
-from db import load_engine, create_session, connect, Base
+import westmarch
+from westmarch.db.db import load_engine, create_session, connect, Base
 from dotenv import load_dotenv,find_dotenv
 import os
 
-from models import (
+from westmarch.db.models import (
     GuildInfo, 
     GuildLevel,
     ShopList,
@@ -18,7 +19,7 @@ password = os.getenv('DB_PASSWORD')
 hostname = os.getenv('DB_HOST','localhost')
 port = os.getenv('DB_PORT',5432)
 database = os.getenv('DATABASE_NAME','west_march')
-file_loc = '../test_db.db'
+file_loc = 'test_db.db'
 
 def db_init():
     engine,session = connect(file_loc)
