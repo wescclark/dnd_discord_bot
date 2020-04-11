@@ -30,6 +30,7 @@ def db_init():
 
     session.add(GuildInfo(player_name="Zaphikel", player_class="Cleric"))
 
+    #TODO: Set initializer up so that it can use the srd spells that we can keep in repo
     with open("merged-spells.json", "r") as input_file:
         for spell_data in json.load(input_file)["spell"]:
             session.add(Spellbook(**Spell(spell_data, from_tools=True).export_for_sqlite()))

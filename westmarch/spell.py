@@ -138,19 +138,20 @@ class Spell:
             for e in json_dict["entries"]:
                 if isinstance(e, dict):
                     # This handles the entries with headers in the description, e.g., Control Winds's types of winds
-                    if "name" in e.keys():
-                        for entry in e:
-                            if isinstance(entry, str):
-                                entry_string += "\n\t_*" + e["name"] + ".*_ " + entry
-                            elif isinstance(entry, dict):
-                                entry_string += "\n"
-                                for i in e["items"]:
-                                    entry_string += "* " + i + "\n"
-                    # This handles entries with embedded lists, e.g., Conjure Woodland Creatures
+                    if "name" in e.keys() and "entries" in e.keys():
+                        entry_string += "\n\t_*" + e["name"] + ".*_ "
+                        for i in e["entries"]:
+                            # This logic is, afaik, only for Guards and Wards's embedded
+                            # embedded list
+                            if isinstance(i, dict):
+                                for j in i["items"]:
+                                    entry_string += "\n- " + j
+                            else:
+                                entry_string += i
+                    # This handles entries with embedded lists, e.g., Conjure Woodland Beings
                     if "items" in e.keys():
-                        entry_string += "\n"
                         for i in e["items"]:
-                            entry_string += "* " + i + "\n"
+                            entry_string += "\n- " + i
                 else:
                     # This is where the plain paragraph part of spell descriptions are handled
                     entry_string += "\n\t" + e
@@ -159,7 +160,7 @@ class Spell:
             # Handles pretty common "at higher levels" entries, which is separately encoded
             if "entriesHigherLevel" in json_dict.keys():
                 self.description += (
-                    "_*At Higher Levels.*_\n\t"
+                    "__At Higher Levels.__\n\t"
                     + "".join(json_dict["entriesHigherLevel"][0]["entries"])
                     + "\n"
                 )
@@ -169,10 +170,16 @@ class Spell:
 
             replacements = [
                 re.compile("(\{@dice ([+\-\d\w\s]*)\})"),  # {@dice 1d4 +1} => 1d4 + 1
+                re.compile(
+                    "(\{@damage ([+\-\d\w\s]*)\})"
+                ),  # {@damage 1d4 +1} => 1d4 + 1
                 re.compile("(\{@condition (\w+)\})"),  # {@condition blinded} => blinded
                 re.compile(
                     "(\{@scaledice [+\-\|\d\w\s]*(\d+d\d+)\})"
                 ),  # {@scaledice 3d12|3-9|1d12} => 1d12
+                re.compile(
+                    "(\{@scaledamage [+\-\|\d\w\s]*(\d+d\d+)\})"
+                ),  # {@scaledamage 3d12|3-9|1d12} => 1d12
                 re.compile(
                     "(\{@creature ([\-\w\s]*)\})"
                 ),  # {@creature dire wolf} => dire wolf
@@ -208,42 +215,45 @@ class Spell:
                 self.level = int(json_dict["level"])
             self.source = None
 
-    def format_slack_message(self):
+    def format_spell_text(spell):
         """Prepares the spell for sending as a Slack message
 
         Returns:
             A str containing the spell's attributes formatted for sending as Slack message
         """
+        # Block Quote
+        output = ">>> "
+
         # Name
-        output = "*{}*\n".format(self.name)
+        output += "__**{}**__\n".format(spell.name)
 
         # Level/School/Ritual
-        if int(self.level) != 0:
-            output += "_Level {} {}".format(self.level, self.school)
+        if int(spell.level) != 0:
+            output += "_Level {} {}".format(spell.level, spell.school)
         else:
-            output += "_{} cantrip".format(self.school)
-        if self.ritual:
+            output += "_{} cantrip".format(spell.school)
+        if spell.ritual:
             output += " (ritual)"
         output += "_\n"
 
         # Casting time
-        output += "*Casting Time:* {}\n".format(self.cast_time)
+        output += "**Casting Time:** {}\n".format(spell.cast_time)
 
         # Range
-        output += "*Range:* {}\n".format(self.range)
+        output += "**Range:** {}\n".format(spell.range)
 
         # Components
-        output += "*Components:* {}\n".format(self.components)
+        output += "**Components:** {}\n".format(spell.components)
 
         # Duration
-        output += "*Duration:* {}\n".format(self.duration)
+        output += "**Duration:** {}\n".format(spell.duration)
 
         # Description
-        output += "\n\t" + self.description + "\n"
+        output += "\n\t" + spell.description + "\n"
 
         # Source
-        if self.source:
-            output += "_" + self.source + "_"
+        if spell.source:
+            output += "_" + spell.source + "_"
 
         return output
 

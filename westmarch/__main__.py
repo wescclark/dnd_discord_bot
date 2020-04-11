@@ -7,6 +7,7 @@ from dotenv import load_dotenv, find_dotenv
 from westmarch.bot_config import Config
 from westmarch.cogs.basic import Basic
 from westmarch.cogs.db_commands import WM_Commands
+from westmarch.cogs.spellbook import Spellbook_Commands
 from westmarch.db import db
 from westmarch.db import models
 
@@ -34,6 +35,7 @@ async def run_bot():
     bot = Bot(engine=engine, session=ses)
     bot.add_cog(Basic(bot))
     bot.add_cog(WM_Commands(bot))
+    bot.add_cog(Spellbook_Commands(bot))
     print(engine.url)
     try:
         await bot.start(discord_oauth)
