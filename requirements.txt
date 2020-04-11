@@ -1,3 +1,4 @@
+dice
 discord.py
 python-dotenv
 sqlalchemy

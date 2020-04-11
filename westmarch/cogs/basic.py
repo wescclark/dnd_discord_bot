@@ -1,4 +1,5 @@
 from discord.ext import commands
+import dice
 import discord
 
 
@@ -40,3 +41,13 @@ class Basic(commands.Cog):
         print(self.bot.engine.table_names())
         table_names = ", ".join(self.bot.engine.table_names())
         await ctx.send(f"{pinger}, the tables in the db are {table_names}")
+
+    @commands.command(
+        name="roll", help="Roll dice, e.g. 3d6+5", aliases=["r", "Roll", "R"]
+    )
+    async def roll(self, ctx, roll_string: str):
+        try:
+            roll_result = str(dice.roll(roll_string))
+        except dice.DiceException:
+            roll_result = "Invalid roll. Try again."
+        await ctx.send(roll_result)
