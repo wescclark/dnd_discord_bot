@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, Boolean
 import bisect
 from westmarch.db.db import Base
 
@@ -59,6 +59,21 @@ class GuildLevel(Base):
     xp_to_level = Column(Integer)
     player_min = Column(Integer)
     player_max = Column(Integer)
+
+
+class Spell(Base):
+    __tablename__ = "spells"
+    level = Column(Integer, primary_key=True, nullable=False)
+    name = Column(String)
+    spell_level = Column(Integer)
+    school = Column(String)
+    scource = Column(String)
+    cast_time = Column(String)
+    range = Column(String)
+    components = Column(String)
+    duration = Column(String)
+    ritual = Column(Boolean)
+    description = Column(String)
 
 
 class ShopList(Base):
