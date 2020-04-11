@@ -61,13 +61,14 @@ class GuildLevel(Base):
     player_max = Column(Integer)
 
 
-class Spell(Base):
+class Spellbook(Base):
     __tablename__ = "spells"
-    level = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True)
+    level = Column(Integer)
     name = Column(String)
     spell_level = Column(Integer)
     school = Column(String)
-    scource = Column(String)
+    source = Column(String)
     cast_time = Column(String)
     range = Column(String)
     components = Column(String)

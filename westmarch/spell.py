@@ -139,9 +139,13 @@ class Spell:
                 if isinstance(e, dict):
                     # This handles the entries with headers in the description, e.g., Control Winds's types of winds
                     if "name" in e.keys():
-                        entry_string += (
-                            "\n\t_*" + e["name"] + ".*_ " + "".join(e["entries"])
-                        )
+                        for entry in e:
+                            if isinstance(entry, str):
+                                entry_string += "\n\t_*" + e["name"] + ".*_ " + entry
+                            elif isinstance(entry, dict):
+                                entry_string += "\n"
+                                for i in e["items"]:
+                                    entry_string += "* " + i + "\n"
                     # This handles entries with embedded lists, e.g., Conjure Woodland Creatures
                     if "items" in e.keys():
                         entry_string += "\n"
@@ -249,15 +253,15 @@ class Spell:
         Returns:
              A tuple of the spell's attributes in the order required by the SQL schema
         """
-        return (
-            self.name,
-            int(self.level),
-            self.school,
-            self.source,
-            self.cast_time,
-            self.range,
-            self.components,
-            self.duration,
-            int(self.ritual),
-            self.description,
-        )
+        return {
+            "name": self.name,
+            "level": int(self.level),
+            "school": self.school,
+            "source": self.source,
+            "cast_time": self.cast_time,
+            "range": self.range,
+            "components": self.components,
+            "duration": self.duration,
+            "ritual": int(self.ritual),
+            "description": self.description,
+        }

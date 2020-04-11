@@ -1,10 +1,11 @@
+from dotenv import load_dotenv, find_dotenv
+import json
+import os
 from sqlalchemy_utils import database_exists, create_database
 import westmarch
 from westmarch.db.db import load_engine, create_session, connect, Base
-from dotenv import load_dotenv, find_dotenv
-import os
-
-from westmarch.db.models import GuildInfo, GuildLevel, ShopList, WeaponShop, PotionShop
+from westmarch.db.models import GuildInfo, GuildLevel, ShopList, WeaponShop, PotionShop, Spellbook
+from westmarch.spell import Spell
 
 load_dotenv(find_dotenv())
 
@@ -28,6 +29,11 @@ def db_init():
         Base.metadata.create_all(bind=engine)
 
     session.add(GuildInfo(player_name="Zaphikel", player_class="Cleric"))
+
+    with open("merged-spells.json", "r") as input_file:
+        for spell_data in json.load(input_file)["spell"]:
+            session.add(Spellbook(**Spell(spell_data, from_tools=True).export_for_sqlite()))
+    
     session.commit()
 
     return engine, session
