@@ -6,21 +6,21 @@ import json
 
 Base = declarative_base()
 
+
 def load_engine(file_loc):
-    #engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{hostname}:{port}/{database}')
+    # engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{hostname}:{port}/{database}')
     print(file_loc)
-    engine = create_engine(f'sqlite:///{file_loc}',echo=True)
+    engine = create_engine(f"sqlite:///{file_loc}", echo=True)
     return engine
+
 
 def create_session(engine):
     return sessionmaker(bind=engine)
+
 
 def connect(file_loc):
     engine = load_engine(file_loc)
     ses = create_session(engine)
     session = ses()
-    
 
     return engine, session
-
-
