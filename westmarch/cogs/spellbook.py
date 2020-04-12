@@ -35,17 +35,20 @@ class Spellbook_Commands(commands.Cog):
         else:
             await ctx.send(message)
 
-    @commands.command(name="spell_index", help="List all spells")
+    @commands.command(
+        name="spell_index", help="DM you a list of all spells and sources"
+    )
     async def spell_index(self, ctx, *search_string):
         message = "**Spell Name - Source**\n"
         for s in self.session.query(Spellbook).order_by(Spellbook.name).all():
             message += s.name + " - " + s.source + "\n"
+        await ctx.send("DMing you the index now, {}!".format(ctx.author.name))
         if len(message) > 1999:
             while len(message) > 1999:
                 # Break the list on its last newline before the 2000 char limit
                 clean_break = message[0:2000].rfind("\n") + 1
-                await ctx.send(message[0:clean_break])
+                await ctx.author.send(message[0:clean_break])
                 message = message[clean_break:]
-            await ctx.send(message[0:2000])
+            await ctx.author.send(message[0:2000])
         else:
-            await ctx.send(message)
+            await ctx.author.send(message)

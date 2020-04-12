@@ -213,7 +213,7 @@ class Spell:
                 self.level = 0
             else:
                 self.level = int(json_dict["level"])
-            self.source = None
+            self.source = "SRD"
 
     def format_spell_text(spell):
         """Prepares the spell for sending as a Slack message

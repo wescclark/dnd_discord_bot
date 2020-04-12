@@ -7,10 +7,10 @@ import json
 Base = declarative_base()
 
 
-def load_engine(file_loc):
+def load_engine(file_loc, echo_sql=False):
     # engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{hostname}:{port}/{database}')
     print(file_loc)
-    engine = create_engine(f"sqlite:///{file_loc}", echo=True)
+    engine = create_engine(f"sqlite:///{file_loc}", echo=echo_sql)
     return engine
 
 

@@ -1,9 +1,11 @@
-import os
+import argparse
 import asyncio
-import logging
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv, find_dotenv
+import logging
+import sys
+import os
 from westmarch.bot_config import Config
 from westmarch.cogs.basic import Basic
 from westmarch.cogs.db_commands import WM_Commands
@@ -17,12 +19,12 @@ configuration = Config()
 load_dotenv(find_dotenv())
 
 discord_oauth = os.getenv("DISCORD_TOKEN")
-user = os.getenv("DB_USER")
-password = os.getenv("DB_PASSWORD")
-hostname = os.getenv("DB_HOST", "localhost")
-port = os.getenv("DB_PORT", 5432)
-database = os.getenv("DATABASE_NAME", "west_march")
-file_loc = "./test_db.db"
+# user = os.getenv("DB_USER")
+# password = os.getenv("DB_PASSWORD")
+# hostname = os.getenv("DB_HOST", "localhost")
+# port = os.getenv("DB_PORT", 5432)
+# database = os.getenv("DATABASE_NAME", "west_march")
+# file_loc = "./test_db.db"
 
 
 async def run_bot():
@@ -72,5 +74,16 @@ class Bot(commands.Bot):
 
 
 if __name__ == "__main__":
+    # Command line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--env", help="The db environment to create: dev, prod, or test", default="dev"
+    )
+    args = parser.parse_args()
+
+    file_loc = "./westmarch-{}.db".format(args.env)
+    if not os.path.isfile(file_loc):
+        sys.exit("Database {} not found.".format(file_loc))
+
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run_bot())
