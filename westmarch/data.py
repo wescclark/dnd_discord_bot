@@ -1,0 +1,27 @@
+character_classes = {
+    "Artificer",
+    "Barbarian",
+    "Bard",
+    "Cleric",
+    "Druid",
+    "Fighter",
+    "Monk",
+    "Paladin",
+    "Ranger",
+    "Rogue",
+    "Sorcerer",
+    "Warlock",
+    "Wizard",
+}
+professions = {
+    "Skinner": "Description for Skinner",
+    "Zoologist": "Description for Zoologist",
+    "Wayfinder": "Description for Wayfinder",
+    "Engineer": "Description for Engineer",
+    "Linguist": "Description for Linguist",
+    "Physician": "Description for Physician",
+    "Cook": "Description for Cook",
+    "Surveyor": "Description for Surveyor",
+    "Dungeoneer": "Description for Dungeoneer",
+    "Survivalist": "Description for Survivalist",
+}

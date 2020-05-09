@@ -32,22 +32,33 @@ def player_level_func(context):
     )
 
 
+class CharacterClasses(Base):
+    __tablename__ = "character_classes"
+    name = Column(String, primary_key=True, nullable=False)
+
+
 class GuildInfo(Base):
-    __tablename__ = "guild_info"
+    __tablename__ = "characters"
 
     player_name = Column(String, primary_key=True, nullable=False)
-    current_xp = Column(Integer, default=0)
-    current_level = Column(Integer, default=1, onupdate=player_level_func)
+    character_name = Column(String, nullable=False, unique=True)
+    xp = Column(Integer, default=0)
+    level = Column(Integer, default=1, onupdate=player_level_func)
     player_class = Column(String, nullable=False)
+    profession = Column(String, nullable=False)
+    gold = Column(Integer, default=500)
 
     def __str__(self):
-        player_string = f"""
-        Player Name: {self.player_name}
-        Current XP: {self.current_xp}
-        Current Level: {self.current_level}
-        Player Class: {self.player_class}
-        """
-        return player_string
+        output = "**{name}** - {player_class} {level} ({xp} XP)\nGold: {gold}\nProfession: {profession}\nPlayer: {player_name}".format(
+            name=self.character_name,
+            level=self.level,
+            player_class=self.player_class,
+            xp=self.xp,
+            gold=self.gold,
+            profession=self.profession,
+            player_name=self.player_name,
+        )
+        return output
 
     def __repr__(self):
         return self.__str__()
@@ -91,6 +102,12 @@ class PotionShop(Base):
     item = Column(String)
     cost = Column(Integer)
     amount = Column(Integer)
+
+
+class Professions(Base):
+    __tablename__ = "professions"
+    name = Column(String, primary_key=True, nullable=False)
+    description = Column(String, nullable=False)
 
 
 class WeaponShop(Base):

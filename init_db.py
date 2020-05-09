@@ -4,17 +4,11 @@ import json
 from sqlalchemy_utils import database_exists, create_database
 import sys
 from westmarch.db.db import connect, Base
-from westmarch.db.models import GuildInfo, Spellbook
+from westmarch.db.models import CharacterClasses, GuildInfo, Professions, Spellbook
 from westmarch.spell import Spell
+from westmarch.data import character_classes, professions
 
 load_dotenv(find_dotenv())
-
-# user = os.getenv("DB_USER")
-# password = os.getenv("DB_PASSWORD")
-# hostname = os.getenv("DB_HOST", "localhost")
-# port = os.getenv("DB_PORT", 5432)
-# database = os.getenv("DATABASE_NAME", "west_march")
-# file_loc = "test_db.db"
 
 
 def db_init(env="dev", spells=None):
@@ -32,8 +26,7 @@ def db_init(env="dev", spells=None):
     Base.metadata.create_all(bind=engine)
 
     print("Populating tables...")
-    session.add(GuildInfo(player_name="Zaphikel", player_class="Cleric"))
-
+    # Populate spells table
     if spells:
         try:
             with open(spells, "r") as input_file:
@@ -52,10 +45,51 @@ def db_init(env="dev", spells=None):
                     session.add(Spellbook(**Spell(spell_data).export_for_sqlite()))
         except FileNotFoundError:
             print("File not found.")
-
     session.commit()
 
+    # Populate professions table
+    for profession, description in professions.items():
+        session.add(Professions(name=profession, description=description))
+    session.commit()
+
+    # Populate classes table
+    for c in character_classes:
+        session.add(CharacterClasses(name=c))
+    session.commit()
+
+    # Add test characters if building dev or test db
+    if env == "dev" or env == "test":
+        populate_test_characters(session).commit()
+
     return engine, session
+
+
+def populate_test_characters(session):
+    session.add(
+        GuildInfo(
+            player_name="Zaphikel",
+            character_name="Mako",
+            player_class="Warlock",
+            profession="Linguist",
+        )
+    )
+    session.add(
+        GuildInfo(
+            player_name="Godet",
+            character_name="Verous",
+            player_class="Paladin",
+            profession="Physician",
+        )
+    )
+    session.add(
+        GuildInfo(
+            player_name="Donknocks",
+            character_name="Withers",
+            player_class="Monk",
+            profession="Survivalist",
+        )
+    )
+    return session
 
 
 if __name__ == "__main__":
