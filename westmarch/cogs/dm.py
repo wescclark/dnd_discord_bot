@@ -51,7 +51,7 @@ class DM_Commands(commands.Cog):
     @is_dm()
     async def set_xp(self, ctx, player_name: str, xp: int):
         """
-        wm!update_player_xp --> wm!update_player_xp Zaphikel 1000
+        !set_xp <player name> <xp>
         """
         player = (
             self.session.query(Characters)

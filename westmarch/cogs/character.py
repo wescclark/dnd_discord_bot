@@ -60,7 +60,7 @@ class Character_Commands(commands.Cog):
     @commands.command()
     async def list_characters(self, ctx):
         """
-        Prints all character info out.
+        Details on all active characters.
         """
         char_list = (
             self.session.query(Characters).order_by(Characters.character_name).all()
@@ -71,7 +71,7 @@ class Character_Commands(commands.Cog):
     @commands.command()
     async def info(self, ctx, player_name: str = ""):
         """
-        !info PlayerName --> !info Zaphikel
+        !info <player name>
         """
         search_name = player_name or ctx.author.name
         try:
@@ -90,7 +90,7 @@ class Character_Commands(commands.Cog):
     @commands.command()
     async def delete_character(self, ctx, char_name: str):
         """
-        !delete_character CharacterName --> !delete Mako
+        !delete_character <character name>
         """
         char = (
             self.session.query(Characters)
