@@ -4,7 +4,7 @@ import json
 from sqlalchemy_utils import database_exists, create_database
 import sys
 from westmarch.db.db import connect, Base
-from westmarch.db.models import CharacterClasses, GuildInfo, Professions, Spellbook
+from westmarch.db.models import CharacterClasses, Characters, Professions, Spellbook
 from westmarch.spell import Spell
 from westmarch.data import character_classes, professions
 
@@ -66,7 +66,7 @@ def db_init(env="dev", spells=None):
 
 def populate_test_characters(session):
     session.add(
-        GuildInfo(
+        Characters(
             player_name="Zaphikel",
             character_name="Mako",
             player_class="Warlock",
@@ -74,7 +74,7 @@ def populate_test_characters(session):
         )
     )
     session.add(
-        GuildInfo(
+        Characters(
             player_name="Godet",
             character_name="Verous",
             player_class="Paladin",
@@ -82,7 +82,7 @@ def populate_test_characters(session):
         )
     )
     session.add(
-        GuildInfo(
+        Characters(
             player_name="Donknocks",
             character_name="Withers",
             player_class="Monk",

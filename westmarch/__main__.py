@@ -9,6 +9,7 @@ import os
 from westmarch.bot_config import Config
 from westmarch.cogs.basic import Basic
 from westmarch.cogs.character import Character_Commands
+from westmarch.cogs.dm import DM_Commands
 from westmarch.cogs.spellbook import Spellbook_Commands
 from westmarch.db import db
 from westmarch.db import models
@@ -27,16 +28,18 @@ discord_oauth = os.getenv("DISCORD_TOKEN")
 # file_loc = "./test_db.db"
 
 
-async def run_bot():
+async def run_bot(env):
     """
     Sets up bot and attempts to run.
     Breaks on keyboard interrupt.
     """
 
-    engine, ses = db.connect(file_loc)
+    log_level = env != "prod"
+    engine, ses = db.connect(file_loc, log_level)
     bot = Bot(engine=engine, session=ses)
     bot.add_cog(Basic(bot))
     bot.add_cog(Character_Commands(bot))
+    bot.add_cog(DM_Commands(bot))
     bot.add_cog(Spellbook_Commands(bot))
     print(engine.url)
     try:
@@ -86,4 +89,4 @@ if __name__ == "__main__":
         sys.exit("Database {} not found.".format(file_loc))
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(run_bot())
+    loop.run_until_complete(run_bot(args.env))

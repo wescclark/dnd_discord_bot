@@ -18,8 +18,8 @@ def create_session(engine):
     return sessionmaker(bind=engine)
 
 
-def connect(file_loc):
-    engine = load_engine(file_loc)
+def connect(file_loc, echo_sql=False):
+    engine = load_engine(file_loc, echo_sql)
     ses = create_session(engine)
     session = ses()
 

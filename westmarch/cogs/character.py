@@ -20,7 +20,7 @@ class Character_Commands(commands.Cog):
         !new_character <name> <class> <profession>
         """
         if self.valid_class(player_class) and self.valid_profession(profession):
-            new_player = GuildInfo(
+            new_player = Characters(
                 player_name=ctx.author.name,
                 character_name=str.title(character_name),
                 player_class=str.capitalize(player_class),
@@ -63,7 +63,7 @@ class Character_Commands(commands.Cog):
         Prints all character info out.
         """
         char_list = (
-            self.session.query(GuildInfo).order_by(GuildInfo.character_name).all()
+            self.session.query(Characters).order_by(Characters.character_name).all()
         )
         for character in char_list:
             await ctx.send("\n-- " + str(character))
@@ -76,8 +76,8 @@ class Character_Commands(commands.Cog):
         search_name = player_name or ctx.author.name
         try:
             char = (
-                self.session.query(GuildInfo)
-                .filter(GuildInfo.player_name.ilike(search_name))
+                self.session.query(Characters)
+                .filter(Characters.player_name.ilike(search_name))
                 .one()
             )
         except NoResultFound:
@@ -93,8 +93,8 @@ class Character_Commands(commands.Cog):
         !delete_character CharacterName --> !delete Mako
         """
         char = (
-            self.session.query(GuildInfo)
-            .filter(GuildInfo.character_name == char_name)
+            self.session.query(Characters)
+            .filter(Characters.character_name == char_name)
             .one()
         )
         if char.player_name == ctx.author.name:
@@ -103,31 +103,6 @@ class Character_Commands(commands.Cog):
             await ctx.send("{} has been deleted.".format(str.title(char_name)))
         else:
             await ctx.send("You can't delete another person's character.")
-
-    @commands.command()
-    @commands.is_owner()
-    async def update_player_xp(self, ctx, player_name: str, xp: int):
-        """
-        Owner Command Only
-        wm!update_player_xp --> wm!update_player_xp Zaphikel 1000
-        """
-        player = (
-            self.session.query(GuildInfo)
-            .filter(GuildInfo.player_name == player_name)
-            .one()
-        )
-        player.current_xp = xp
-        self.session.commit()
-
-        player_query = (
-            self.session.query(GuildInfo)
-            .filter(GuildInfo.player_name == player_name)
-            .one()
-        )
-
-        await ctx.send(
-            f"{player_query.player_name} has a new XP value of {player_query.current_xp}"
-        )
 
     def valid_class(self, player_class):
         class_list = []
@@ -140,3 +115,41 @@ class Character_Commands(commands.Cog):
         for p in self.session.query(Professions.name).all():
             profession_list.append(p.name)
         return str.title(profession) in profession_list
+
+    @commands.command()
+    async def give_gold(self, ctx, player_name: str, amount: int):
+        """
+        !give_gold <player name> <amount>
+        """
+        if amount <= 0:
+            await ctx.send("Please enter a positive amount of gold to send.")
+            return
+
+        sender = (
+            self.session.query(Characters)
+            .filter(Characters.player_name.ilike(ctx.author.name))
+            .one()
+        )
+        if sender.gold < amount:
+            await ctx.send("You can't send more gold than you have.")
+            return
+        try:
+            receiver = (
+                self.session.query(Characters)
+                .filter(Characters.player_name.ilike(player_name))
+                .one()
+            )
+        except NoResultFound:
+            await ctx.send("No character found for that player.")
+            return
+        sender.gold = sender.gold - amount
+        receiver.gold = receiver.gold + amount
+        try:
+            self.session.commit()
+        except:
+            await ctx.send("Commit failed. No gold transferred.")
+            self.session.rollback()
+        else:
+            await ctx.send(
+                f"{amount} gold sent to {receiver.character_name} ({receiver.player_name})."
+            )
