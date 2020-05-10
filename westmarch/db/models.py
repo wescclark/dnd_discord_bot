@@ -40,7 +40,8 @@ class CharacterClasses(Base):
 class Characters(Base):
     __tablename__ = "characters"
 
-    player_name = Column(String, primary_key=True, nullable=False)
+    player_id = Column(Integer, primary_key=True, nullable=False)
+    player_name = Column(String, nullable=False)
     character_name = Column(String, nullable=False, unique=True)
     xp = Column(Integer, default=0)
     level = Column(Integer, default=1)  # , onupdate=player_level_func)

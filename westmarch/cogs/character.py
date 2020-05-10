@@ -22,6 +22,7 @@ class Character_Commands(commands.Cog):
         if self.valid_class(player_class) and self.valid_profession(profession):
             new_player = Characters(
                 player_name=ctx.author.name,
+                player_id=ctx.author.id,
                 character_name=str.title(character_name),
                 player_class=str.capitalize(player_class),
                 profession=str.capitalize(profession),
@@ -94,10 +95,12 @@ class Character_Commands(commands.Cog):
         """
         char = (
             self.session.query(Characters)
-            .filter(Characters.character_name == char_name)
+            .filter(Characters.character_name.ilike(char_name))
             .one()
         )
-        if char.player_name == ctx.author.name:
+        if char.player_id == ctx.author.id or "DM" in [
+            _.name for _ in ctx.author.roles
+        ]:
             self.session.delete(char)
             self.session.commit()
             await ctx.send("{} has been deleted.".format(str.title(char_name)))

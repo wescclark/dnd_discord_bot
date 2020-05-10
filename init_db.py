@@ -68,6 +68,7 @@ def populate_test_characters(session):
     session.add(
         Characters(
             player_name="Zaphikel",
+            player_id=0,
             character_name="Mako",
             player_class="Warlock",
             profession="Linguist",
@@ -76,6 +77,7 @@ def populate_test_characters(session):
     session.add(
         Characters(
             player_name="Godet",
+            player_id=1,
             character_name="Verous",
             player_class="Paladin",
             profession="Physician",
@@ -84,6 +86,7 @@ def populate_test_characters(session):
     session.add(
         Characters(
             player_name="Donknocks",
+            player_id=2,
             character_name="Withers",
             player_class="Monk",
             profession="Survivalist",
