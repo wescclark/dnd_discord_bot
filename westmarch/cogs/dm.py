@@ -15,6 +15,26 @@ class DM_Commands(commands.Cog):
 
     @commands.command()
     @is_dm()
+    async def item_info(self, ctx, *search_string):
+        """
+        !item_info <item name>
+        """
+        item = None
+        try:
+            item = (
+                self.session.query(Items)
+                .filter(Items.name.ilike(" ".join(search_string)))
+                .one()
+            )
+        except NoResultFound:
+            await ctx.send("No item found by that name.")
+        except:
+            await ctx.send("Someting went wrong.")
+        else:
+            await ctx.send(item)
+
+    @commands.command()
+    @is_dm()
     async def set_gold(self, ctx, player: str, new_gold: int):
         """
         !set_gold <player> <amount>

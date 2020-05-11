@@ -40,7 +40,8 @@ class CharacterClasses(Base):
 class Characters(Base):
     __tablename__ = "characters"
 
-    player_id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True)
+    player_id = Column(Integer, nullable=False, unique=True)
     player_name = Column(String, nullable=False)
     character_name = Column(String, nullable=False, unique=True)
     xp = Column(Integer, default=0)
@@ -118,3 +119,35 @@ class WeaponShop(Base):
     item = Column(String)
     cost = Column(Integer)
     amount = Column(Integer)
+
+
+class Items(Base):
+    __tablename__ = "items"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    in_item_shop = Column(Boolean, nullable=False, default=False)
+    source = Column(String)
+    rarity = Column(String)
+    item_type = Column(String)
+    attunement = Column(String)
+    properties = Column(String)
+    weight = Column(String)
+    value = Column(Integer, nullable=False, default=0)
+    text = Column(String)
+
+    def __str__(self):
+        output = f"**{self.name}**\n*{self.item_type.title()}"
+        if self.rarity != "none" and not self.rarity.startswith("unknown"):
+            output += f", {self.rarity.title()}"
+        output += "*"
+        if self.properties or self.text or self.attunement:
+            output += "\n"
+        for _ in [self.properties, self.text, self.attunement.capitalize()]:
+            if _:
+                output += f"\n{_.capitalize()}"
+        output += f"\n\nValue: {str(self.value)} gp"
+        return output
+
+    def __repr__(self):
+        return self.__str__()

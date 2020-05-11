@@ -1,10 +1,17 @@
 import argparse
+import csv
 from dotenv import load_dotenv, find_dotenv
 import json
 from sqlalchemy_utils import database_exists, create_database
 import sys
 from westmarch.db.db import connect, Base
-from westmarch.db.models import CharacterClasses, Characters, Professions, Spellbook
+from westmarch.db.models import (
+    CharacterClasses,
+    Characters,
+    Items,
+    Professions,
+    Spellbook,
+)
 from westmarch.spell import Spell
 from westmarch.data import character_classes, professions
 
@@ -37,7 +44,7 @@ def db_init(env="dev", spells=None):
                         )
                     )
         except FileNotFoundError:
-            print("File not found.")
+            print("Spell file not found.")
     else:
         try:
             with open("srd-spells.json", "r") as input_file:
@@ -60,6 +67,29 @@ def db_init(env="dev", spells=None):
     # Add test characters if building dev or test db
     if env == "dev" or env == "test":
         populate_test_characters(session).commit()
+
+    # Populate items table
+    try:
+        with open("item-list.csv", "r") as csvfile:
+            item_reader = csv.DictReader(csvfile)
+            for item in item_reader:
+                session.add(
+                    Items(
+                        name=item["Name"],
+                        in_item_shop=(item["In Item Shop"] == "TRUE"),
+                        source=item["Source"],
+                        rarity=item["Rarity"],
+                        item_type=item["Type"],
+                        attunement=item["Attunement"],
+                        properties=item["Properties"],
+                        weight=item["Weight"],
+                        value=item["Value"],
+                        text=item["Text"],
+                    )
+                )
+            session.commit()
+    except FileNotFoundError:
+        print("Item file not found.")
 
     return engine, session
 
