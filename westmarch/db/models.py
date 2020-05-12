@@ -111,6 +111,12 @@ class Professions(Base):
     name = Column(String, primary_key=True, nullable=False)
     description = Column(String, nullable=False)
 
+    def __str__(self):
+        return f"{self.name} - {self.description}"
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class WeaponShop(Base):
     __tablename__ = "steel_buffet"

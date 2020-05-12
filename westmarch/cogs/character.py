@@ -13,7 +13,7 @@ class Character_Commands(commands.Cog):
         self.session = self.bot.session
 
     @commands.command()
-    async def new_character(
+    async def create_character(
         self, ctx, character_name: str, player_class: str, profession: str
     ):
         """
@@ -66,14 +66,28 @@ class Character_Commands(commands.Cog):
         char_list = (
             self.session.query(Characters).order_by(Characters.character_name).all()
         )
+        output = ""
         for character in char_list:
-            await ctx.send("\n-- " + str(character))
+            output += f"\n-- {character}"
+        await ctx.send(output)
 
-    @commands.command()
-    async def info(self, ctx, player_name: str = ""):
-        """
-        !info <player name>
-        """
+    @commands.command(help="!lookup_character <character name>")
+    async def lookup_character(self, ctx, character_name: str):
+        try:
+            char = (
+                self.session.query(Characters)
+                .filter(Characters.character_name.ilike(character_name))
+                .one()
+            )
+        except NoResultFound:
+            await ctx.send("No character found by that name.")
+        except:
+            await ctx.send("Something went wrong!")
+        else:
+            await ctx.send(char)
+
+    @commands.command(help="!lookup_player <player name> (optional)")
+    async def lookup_player(self, ctx, player_name: str = ""):
         search_name = player_name or ctx.author.name
         try:
             char = (
@@ -120,26 +134,30 @@ class Character_Commands(commands.Cog):
         return str.title(profession) in profession_list
 
     @commands.command()
-    async def give_gold(self, ctx, player_name: str, amount: int):
+    async def give_gold(self, ctx, character_name: str, amount: int):
         """
-        !give_gold <player name> <amount>
+        !give_gold <character name> <amount>
         """
         if amount <= 0:
             await ctx.send("Please enter a positive amount of gold to send.")
             return
 
-        sender = (
-            self.session.query(Characters)
-            .filter(Characters.player_name.ilike(ctx.author.name))
-            .one()
-        )
+        try:
+            sender = (
+                self.session.query(Characters)
+                .filter(Characters.player_id == (ctx.author.id))
+                .one()
+            )
+        except NoResultFound:
+            await ctx.send("You can't send gold without having a character.")
+            return
         if sender.gold < amount:
             await ctx.send("You can't send more gold than you have.")
             return
         try:
             receiver = (
                 self.session.query(Characters)
-                .filter(Characters.player_name.ilike(player_name))
+                .filter(Characters.character_name.ilike(character_name))
                 .one()
             )
         except NoResultFound:

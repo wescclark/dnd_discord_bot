@@ -15,39 +15,19 @@ class DM_Commands(commands.Cog):
 
     @commands.command()
     @is_dm()
-    async def item_info(self, ctx, *search_string):
+    async def set_gold(self, ctx, character_name: str, new_gold: int):
         """
-        !item_info <item name>
-        """
-        item = None
-        try:
-            item = (
-                self.session.query(Items)
-                .filter(Items.name.ilike(" ".join(search_string)))
-                .one()
-            )
-        except NoResultFound:
-            await ctx.send("No item found by that name.")
-        except:
-            await ctx.send("Someting went wrong.")
-        else:
-            await ctx.send(item)
-
-    @commands.command()
-    @is_dm()
-    async def set_gold(self, ctx, player: str, new_gold: int):
-        """
-        !set_gold <player> <amount>
+        !set_gold <character name> <amount>
         """
         char = None
         try:
             char = (
                 self.session.query(Characters)
-                .filter(Characters.player_name.ilike(player))
+                .filter(Characters.character_name.ilike(character_name))
                 .first()
             )
         except NoResultFound:
-            await ctx.send("No character found for that player.")
+            await ctx.send("No character found by that name.")
         except:
             await ctx.send("Someting went wrong.")
         if char:
@@ -55,7 +35,7 @@ class DM_Commands(commands.Cog):
             try:
                 self.session.commit()
             except:
-                await ctx.send("Commit failed. Player gold not updated.")
+                await ctx.send("Commit failed. Character gold not updated.")
                 self.session.rollback()
             else:
                 await ctx.send(
@@ -69,27 +49,30 @@ class DM_Commands(commands.Cog):
 
     @commands.command()
     @is_dm()
-    async def set_xp(self, ctx, player_name: str, xp: int):
+    async def set_xp(self, ctx, character_name: str, xp: int):
         """
-        !set_xp <player name> <xp>
+        !set_xp <character name> <xp>
         """
-        player = (
-            self.session.query(Characters)
-            .filter(Characters.player_name == player_name)
-            .one()
-        )
-        player.current_xp = xp
-        self.session.commit()
+        try:
+            char = (
+                self.session.query(Characters)
+                .filter(Characters.character_name.ilike(character_name))
+                .one()
+            )
+        except NoResultFound:
+            await ctx.send("No character found by that name.")
+            return
 
-        player_query = (
-            self.session.query(Characters)
-            .filter(Characters.player_name == player_name)
-            .one()
-        )
-
-        await ctx.send(
-            f"{player_query.player_name} has a new XP value of {player_query.current_xp}"
-        )
+        char.xp = xp
+        try:
+            self.session.commit()
+        except:
+            await ctx.send("Commit failed. Player XP not updated.")
+            self.session.rollback()
+        else:
+            await ctx.send(
+                f"{char.character_name} ({char.player_name}) XP set to {char.xp}."
+            )
 
     @set_xp.error
     async def set_xp_error(self, ctx, error):

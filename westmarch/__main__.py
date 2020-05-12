@@ -10,7 +10,6 @@ from westmarch.bot_config import Config
 from westmarch.cogs.basic import Basic
 from westmarch.cogs.character import Character_Commands
 from westmarch.cogs.dm import DM_Commands
-from westmarch.cogs.spellbook import Spellbook_Commands
 from westmarch.db import db
 from westmarch.db import models
 
@@ -40,7 +39,6 @@ async def run_bot(env):
     bot.add_cog(Basic(bot))
     bot.add_cog(Character_Commands(bot))
     bot.add_cog(DM_Commands(bot))
-    bot.add_cog(Spellbook_Commands(bot))
     print(engine.url)
     try:
         await bot.start(discord_oauth)
