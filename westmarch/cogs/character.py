@@ -17,7 +17,7 @@ class Character_Commands(commands.Cog):
         self, ctx, character_name: str, player_class: str, profession: str
     ):
         """
-        !new_character <name> <class> <profession>
+        !create_character <name> <class> <profession>
         """
         if self.valid_class(player_class) and self.valid_profession(profession):
             new_player = Characters(
