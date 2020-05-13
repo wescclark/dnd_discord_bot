@@ -1,5 +1,7 @@
-from sqlalchemy import Column, String, Integer, Boolean
 import bisect
+
+from sqlalchemy import Boolean, Column, Integer, String
+
 from westmarch.db.db import Base
 
 player_level_range = [
@@ -51,14 +53,12 @@ class Characters(Base):
     gold = Column(Integer, default=500)
 
     def __str__(self):
-        output = "**{name}** - {player_class} {level} ({xp} XP)\nGold: {gold}\nProfession: {profession}\nPlayer: {player_name}".format(
-            name=self.character_name,
-            level=self.level,
-            player_class=self.player_class,
-            xp=self.xp,
-            gold=self.gold,
-            profession=self.profession,
-            player_name=self.player_name,
+        output = (
+            f"**{self.character_name}** - {self.player_class} {self.level} "
+            + f"({self.xp} XP)\n"
+            + f"Gold: {self.gold}\n"
+            + f"Profession: {self.profession}"
+            + f"\nPlayer: {self.player_name}"
         )
         return output
 

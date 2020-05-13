@@ -1,18 +1,16 @@
 import argparse
 import asyncio
-import discord
-from discord.ext import commands
-from dotenv import load_dotenv, find_dotenv
-import logging
-import sys
 import os
+import sys
+
+from discord.ext import commands
+from dotenv import find_dotenv, load_dotenv
+
 from westmarch.bot_config import Config
 from westmarch.cogs.basic import Basic
 from westmarch.cogs.character import Character_Commands
 from westmarch.cogs.dm import DM_Commands
 from westmarch.db import db
-from westmarch.db import models
-
 
 configuration = Config()
 
@@ -65,7 +63,7 @@ class Bot(commands.Bot):
     async def on_message(self, message):
         """
         Trigger on everything.
-        Ignore bots.  
+        Ignore bots.
         Ignore self.
         """
 

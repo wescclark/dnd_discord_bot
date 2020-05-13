@@ -1,8 +1,9 @@
-from discord.ext import commands
 import dice
-import discord
+from discord.ext import commands
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
+
 from westmarch.db.models import CharacterClasses, Items, Professions, Spellbook
 from westmarch.spell import Spell
 
@@ -41,7 +42,7 @@ class Basic(commands.Cog):
             )
         except NoResultFound:
             await ctx.send("No item found by that name.")
-        except:
+        except SQLAlchemyError:
             await ctx.send("Someting went wrong.")
         else:
             await ctx.send(item)
@@ -84,7 +85,7 @@ class Basic(commands.Cog):
             )
         except NoResultFound:
             await ctx.send("No such profession found.")
-        except:
+        except SQLAlchemyError:
             await ctx.send("Something went wrong.")
         else:
             await ctx.send(result)
@@ -99,7 +100,7 @@ class Basic(commands.Cog):
                 )
                 .one()
             )
-        except NoResultFound as err:
+        except NoResultFound:
             message = "No spell found by that name."
         if len(message) > 1999:
             while len(message) > 1999:

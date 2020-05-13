@@ -8,8 +8,8 @@ import re
 class Spell:
     """D&D 5E Spell
 
-    Creates a Spell instance, usually from data provided by a JSON file or database. Can parse the data differently
-    depending on its source.
+    Creates a Spell instance, usually from data provided by a JSON file or database. 
+    Can parse the data differentlydepending on its source.
 
     Attributes:
     name: The spell's name
@@ -17,8 +17,10 @@ class Spell:
     school: The school of magic the spell belongs to, e.g., "Divination"
     cast_time: The spell's casting time, e.g., "1 Action"
     range: The spell's range, e.g., "Touch" or "150 feet"
-    components: The spell's required components and materials, e.g., "V, S, M (a tiny ball of bat guano and sulfur)"
-    duration: The spell's duration and whether it requires Concentration, e.g., "Instantaneous" or "8 hours"
+    components: The spell's required components and materials, e.g., "V, S, M (a tiny 
+    ball of bat guano and sulfur)"
+    duration: The spell's duration and whether it requires Concentration, e.g., 
+    "Instantaneous" or "8 hours"
     description: The spell's effects
     source: The source material containing the spell, e.g. "PHB p. 236"
     ritual (bool): Whether the spell can be cast as a ritual
@@ -137,7 +139,8 @@ class Spell:
             entry_string = ""
             for e in json_dict["entries"]:
                 if isinstance(e, dict):
-                    # This handles the entries with headers in the description, e.g., Control Winds's types of winds
+                    # This handles the entries with headers in the description,
+                    # e.g., Control Winds's types of winds
                     if "name" in e.keys() and "entries" in e.keys():
                         entry_string += "\n\t_*" + e["name"] + ".*_ "
                         for i in e["entries"]:
@@ -148,16 +151,19 @@ class Spell:
                                     entry_string += "\n- " + j
                             else:
                                 entry_string += i
-                    # This handles entries with embedded lists, e.g., Conjure Woodland Beings
+                    # This handles entries with embedded lists, e.g.,
+                    # Conjure Woodland Beings
                     if "items" in e.keys():
                         for i in e["items"]:
                             entry_string += "\n- " + i
                 else:
-                    # This is where the plain paragraph part of spell descriptions are handled
+                    # This is where the plain paragraph part of spell descriptions
+                    # are handled
                     entry_string += "\n\t" + e
             self.description += "\t" + entry_string + "\n"
 
-            # Handles pretty common "at higher levels" entries, which is separately encoded
+            # Handles pretty common "at higher levels" entries, which is
+            # separately encoded
             if "entriesHigherLevel" in json_dict.keys():
                 self.description += (
                     "__At Higher Levels.__\n\t"
@@ -165,7 +171,8 @@ class Spell:
                     + "\n"
                 )
 
-            # Strip all the {@xyz} formatting language from the 5Etools files and replace with plain text
+            # Strip all the {@xyz} formatting language from the 5Etools files and
+            # replace with plain text
             clean_description = self.description
 
             replacements = [

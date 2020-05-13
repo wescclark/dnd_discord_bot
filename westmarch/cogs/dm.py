@@ -1,11 +1,9 @@
 from discord.ext import commands
-from discord.ext.commands.errors import CommandInvokeError
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.exc import IntegrityError
-import sys
-import discord
-from westmarch.db.models import *
+
 from westmarch.cogs.checks import DMAccessOnly, is_dm
+from westmarch.db.models import Characters
 
 
 class DM_Commands(commands.Cog):
@@ -28,18 +26,19 @@ class DM_Commands(commands.Cog):
             )
         except NoResultFound:
             await ctx.send("No character found by that name.")
-        except:
+        except SQLAlchemyError:
             await ctx.send("Someting went wrong.")
         if char:
             char.gold = new_gold
             try:
                 self.session.commit()
-            except:
+            except SQLAlchemyError:
                 await ctx.send("Commit failed. Character gold not updated.")
                 self.session.rollback()
             else:
                 await ctx.send(
-                    f"{char.character_name} ({char.player_name}) gold set to {char.gold}."
+                    f"{char.character_name} ({char.player_name}) "
+                    + f"gold set to {char.gold}."
                 )
 
     @set_gold.error
@@ -66,7 +65,7 @@ class DM_Commands(commands.Cog):
         char.xp = xp
         try:
             self.session.commit()
-        except:
+        except SQLAlchemyError:
             await ctx.send("Commit failed. Player XP not updated.")
             self.session.rollback()
         else:

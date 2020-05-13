@@ -1,10 +1,13 @@
 import argparse
 import csv
-from dotenv import load_dotenv, find_dotenv
 import json
-from sqlalchemy_utils import database_exists, create_database
 import sys
-from westmarch.db.db import connect, Base
+
+from dotenv import find_dotenv, load_dotenv
+from sqlalchemy_utils import create_database, database_exists
+
+from westmarch.data import character_classes, professions
+from westmarch.db.db import Base, connect
 from westmarch.db.models import (
     CharacterClasses,
     Characters,
@@ -13,7 +16,6 @@ from westmarch.db.models import (
     Spellbook,
 )
 from westmarch.spell import Spell
-from westmarch.data import character_classes, professions
 
 load_dotenv(find_dotenv())
 

@@ -5,3 +5,4 @@ __pycache__/
 *.db
 merged-spells.json
 *.csv
+isort.cfg

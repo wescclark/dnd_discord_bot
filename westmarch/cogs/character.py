@@ -1,10 +1,10 @@
-from discord.ext import commands
-from discord.ext.commands.errors import CommandInvokeError
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.exc import IntegrityError
 import sys
-import discord
-from westmarch.db.models import *
+
+from discord.ext import commands
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
+
+from westmarch.db.models import CharacterClasses, Characters, Professions
 
 
 class Character_Commands(commands.Cog):
@@ -41,12 +41,12 @@ class Character_Commands(commands.Cog):
                     await ctx.send("Error: Another character with that name exists.")
                 else:
                     await ctx.send("Error: {}".format(e.__cause__))
-            except:
+            except SQLAlchemyError:
                 self.session.rollback()
                 await ctx.send("Something went wrong!")
                 await ctx.send(sys.exc_info())
             else:
-                await ctx.send(f"New character added: ")
+                await ctx.send("New character added: ")
                 await ctx.send(new_player)
         else:
             error_message = ""
@@ -81,7 +81,7 @@ class Character_Commands(commands.Cog):
             )
         except NoResultFound:
             await ctx.send("No character found by that name.")
-        except:
+        except SQLAlchemyError:
             await ctx.send("Something went wrong!")
         else:
             await ctx.send(char)
@@ -97,7 +97,7 @@ class Character_Commands(commands.Cog):
             )
         except NoResultFound:
             await ctx.send("No character found for that player.")
-        except:
+        except SQLAlchemyError:
             await ctx.send("Something went wrong!")
         else:
             await ctx.send(char)
@@ -167,10 +167,11 @@ class Character_Commands(commands.Cog):
         receiver.gold = receiver.gold + amount
         try:
             self.session.commit()
-        except:
+        except SQLAlchemyError:
             await ctx.send("Commit failed. No gold transferred.")
             self.session.rollback()
         else:
             await ctx.send(
-                f"{amount} gold sent to {receiver.character_name} ({receiver.player_name})."
+                f"{amount} gold sent to"
+                + f"{receiver.character_name} ({receiver.player_name})."
             )
