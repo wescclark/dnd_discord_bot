@@ -143,13 +143,14 @@ class Items(Base):
     text = Column(String)
 
     def __str__(self):
-        output = f"**{self.name}**\n*{self.item_type.title()}"
-        if self.rarity != "none" and not self.rarity.startswith("unknown"):
-            output += f", {self.rarity.title()}"
-        output += "*"
-        if self.properties or self.text or self.attunement:
+        output = f"**{self.name.title()}**"
+        if self.item_type or self.rarity:
             output += "\n"
-        for _ in [self.properties, self.text, self.attunement.capitalize()]:
+            if self.rarity != "none" and not self.rarity.startswith("unknown"):
+                output += f"*{self.rarity.title()}* "
+            if self.item_type:
+                output += f"*{self.item_type.title()}*"
+        for _ in [self.properties, self.text, self.attunement]:
             if _:
                 output += f"\n{_.capitalize()}"
         output += f"\n\nValue: {str(self.value)} gp"
