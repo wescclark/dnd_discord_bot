@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 from discord.ext import commands
 from sqlalchemy.exc import SQLAlchemyError
@@ -56,7 +57,8 @@ class DM_Commands(commands.Cog):
             return
         already_in_inventory = (
             self.session.query(Inventory)
-            .filter_by(character_id=character.id, item_id=item.id)
+            .filter(Inventory.character_id == character.id)
+            .filter(Inventory.item_id == item.id)
             .first()
         )
         if already_in_inventory:
@@ -106,7 +108,8 @@ class DM_Commands(commands.Cog):
             return
         has_item = (
             self.session.query(Inventory)
-            .filter_by(character_id=character.id, item_id=item.id)
+            .filter(Inventory.character_id == character.id)
+            .filter(Inventory.item_id == item.id)
             .first()
         )
         if has_item:
@@ -117,7 +120,8 @@ class DM_Commands(commands.Cog):
                 await ctx.send("Something went wrong!")
             else:
                 await ctx.send(
-                    f"Removed {item.name.title()} from {character.character_name.capitalize()}'s inventory."
+                    f"Removed {item.name.title()} from"
+                    + f"{character.character_name.capitalize()}'s inventory."
                 )
         else:
             await ctx.send(f"{character.character_name} doesn't have that item.")
@@ -141,7 +145,7 @@ class DM_Commands(commands.Cog):
 
         try:
             item_info = vars(parser.parse_args(input))
-        except ParserException as e:
+        except ParserException:
             await ctx.send(f"{parser.format_help()}")
             return
         # values parsed by argparse are either None or returned inside lists. This

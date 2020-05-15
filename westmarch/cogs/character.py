@@ -228,12 +228,13 @@ class Character_Commands(commands.Cog):
 
         sender_stock = (
             self.session.query(Inventory)
-            .filter_by(character_id=sender.id, item_id=item.id)
+            .filter(Inventory.character_id == sender.id)
+            .filter(Inventory.item_id == item.id)
             .first()
         )
         if sender_stock:
             if sender_stock.quantity > 1:
-                sender_stock.quantity = -1
+                sender_stock.quantity -= 1
             else:
                 sender.items.remove(item)
         else:
@@ -242,7 +243,8 @@ class Character_Commands(commands.Cog):
 
         receiver_already_has = (
             self.session.query(Inventory)
-            .filter_by(character_id=receiver.id, item_id=item.id)
+            .filter(Inventory.character_id == receiver.id)
+            .filter(Inventory.item_id == item.id)
             .first()
         )
 

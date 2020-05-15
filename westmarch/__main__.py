@@ -10,6 +10,7 @@ from westmarch.bot_config import Config
 from westmarch.cogs.basic import Basic
 from westmarch.cogs.character import Character_Commands
 from westmarch.cogs.dm import DM_Commands
+from westmarch.cogs.shopping import Item_shop
 from westmarch.db import db
 
 configuration = Config()
@@ -37,6 +38,7 @@ async def run_bot(env):
     bot.add_cog(Basic(bot))
     bot.add_cog(Character_Commands(bot))
     bot.add_cog(DM_Commands(bot))
+    bot.add_cog(Item_shop(bot))
     print(engine.url)
     try:
         await bot.start(discord_oauth)

@@ -1,7 +1,9 @@
 import bisect
 
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.exc import NoResultFound
 
 from westmarch.db.db import Base
 
@@ -74,6 +76,41 @@ class Characters(Base):
 
     def __repr__(self):
         return self.__str__()
+
+    @classmethod
+    def find_by_player_id(cls, session, id: int):
+        try:
+            char = session.query(cls).filter(cls.player_id == id).one()
+        except NoResultFound:
+            return None
+        except SQLAlchemyError:
+            return None
+        else:
+            return char
+
+    def has_item(self, session, search_item: str):
+        try:
+            item = session.query(Items).filter(Items.name.ilike(search_item)).one()
+        except NoResultFound:
+            return None, None
+        except SQLAlchemyError:
+            return None, None
+        try:
+            stock = (
+                session.query(Inventory)
+                .filter(Inventory.character_id == self.id)
+                .filter(Inventory.item_id == item.id)
+                .one()
+            )
+        except NoResultFound:
+            return None
+        except SQLAlchemyError:
+            return None
+        else:
+            return (
+                session.query(Items).filter(Items.id == stock.item_id).one(),
+                stock.quantity,
+            )
 
 
 class GuildLevel(Base):
