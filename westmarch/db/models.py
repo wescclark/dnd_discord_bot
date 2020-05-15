@@ -1,6 +1,7 @@
 import bisect
 
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
+from sqlalchemy.orm import relationship
 
 from westmarch.db.db import Base
 
@@ -34,6 +35,14 @@ def player_level_func(context):
     )
 
 
+class Inventory(Base):
+    __tablename__ = "inventory"
+    character_id = Column(Integer, ForeignKey("characters.id"), primary_key=True)
+    item_id = Column(Integer, ForeignKey("items.id"), primary_key=True)
+    quantity = Column(Integer, default=1)
+    child = relationship("Items")
+
+
 class CharacterClasses(Base):
     __tablename__ = "character_classes"
     name = Column(String, primary_key=True, nullable=False)
@@ -51,6 +60,7 @@ class Characters(Base):
     player_class = Column(String, nullable=False)
     profession = Column(String, nullable=False)
     gold = Column(Integer, default=500)
+    items = relationship("Items", secondary="inventory")
 
     def __str__(self):
         output = (

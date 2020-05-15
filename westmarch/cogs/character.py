@@ -4,7 +4,13 @@ from discord.ext import commands
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 
-from westmarch.db.models import CharacterClasses, Characters, Professions
+from westmarch.db.models import (
+    CharacterClasses,
+    Characters,
+    Inventory,
+    Items,
+    Professions,
+)
 
 
 class Character_Commands(commands.Cog):
@@ -175,3 +181,113 @@ class Character_Commands(commands.Cog):
                 f"{amount} gold sent to"
                 + f"{receiver.character_name} ({receiver.player_name})."
             )
+
+    @commands.command()
+    async def give_item(self, ctx, character_name: str, *input: str):
+        """
+        !give_item !give_item Character Item in your Inventory
+        """
+        try:
+            item = (
+                self.session.query(Items)
+                .filter(Items.name.ilike(" ".join(input)))
+                .one()
+            )
+        except NoResultFound:
+            await ctx.send("No item found by that name.")
+            return
+        except SQLAlchemyError:
+            await ctx.send("Someting went wrong.")
+            return
+
+        try:
+            receiver = (
+                self.session.query(Characters)
+                .filter(Characters.character_name.ilike(character_name))
+                .one()
+            )
+        except NoResultFound:
+            await ctx.send("No character found by that name.")
+            return
+        except SQLAlchemyError:
+            await ctx.send("Something went wrong!")
+            return
+
+        try:
+            sender = (
+                self.session.query(Characters)
+                .filter(Characters.player_id == ctx.author.id)
+                .one()
+            )
+        except NoResultFound:
+            await ctx.send("You don't have a character.")
+            return
+        except SQLAlchemyError:
+            await ctx.send("Something went wrong!")
+            return
+
+        sender_stock = (
+            self.session.query(Inventory)
+            .filter_by(character_id=sender.id, item_id=item.id)
+            .first()
+        )
+        if sender_stock:
+            if sender_stock.quantity > 1:
+                sender_stock.quantity = -1
+            else:
+                sender.items.remove(item)
+        else:
+            await ctx.send(f"You don't have {item.name} to give.")
+            return
+
+        receiver_already_has = (
+            self.session.query(Inventory)
+            .filter_by(character_id=receiver.id, item_id=item.id)
+            .first()
+        )
+
+        if receiver_already_has:
+            receiver_already_has.quantity += 1
+        else:
+            receiver.items.append(item)
+        try:
+            self.session.commit()
+        except SQLAlchemyError:
+            await ctx.send("Something went wrong!")
+            return
+        else:
+            await ctx.send(
+                f"{receiver.character_name.capitalize()} received {item.name.title()}!"
+            )
+
+    @commands.command()
+    async def list_inventory(self, ctx, character_name: str = None):
+        """
+        !list_inventory [character name]
+        """
+        try:
+            if character_name:
+                char = (
+                    self.session.query(Characters)
+                    .filter(Characters.character_name.ilike(character_name))
+                    .one()
+                )
+            else:
+                char = (
+                    self.session.query(Characters)
+                    .filter(Characters.player_id == ctx.author.id)
+                    .one()
+                )
+        except NoResultFound:
+            await ctx.send("No character found by that name.")
+            return
+        except SQLAlchemyError:
+            await ctx.send("Something went wrong!")
+            return
+        if char.items:
+            output = ""
+            for item in char.items:
+                output += f"- {item.name}\n"
+        else:
+            output = "No items in inventory."
+        await ctx.send(output)

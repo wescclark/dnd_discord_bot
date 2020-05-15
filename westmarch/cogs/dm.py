@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 
 from westmarch.cogs.checks import DMAccessOnly, is_dm
-from westmarch.db.models import Characters, Items
+from westmarch.db.models import Characters, Inventory, Items
 
 
 class ParserException(Exception):
@@ -22,6 +22,105 @@ class DM_Commands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.session = self.bot.session
+
+    @commands.command()
+    @is_dm()
+    async def add_item(self, ctx, character_name: str, *input: str):
+        """
+        !add_item !add_item Character Item
+        """
+        try:
+            item = (
+                self.session.query(Items)
+                .filter(Items.name.ilike(" ".join(input)))
+                .one()
+            )
+        except NoResultFound:
+            await ctx.send("No item found by that name.")
+            return
+        except SQLAlchemyError:
+            await ctx.send("Someting went wrong.")
+            return
+
+        try:
+            character = (
+                self.session.query(Characters)
+                .filter(Characters.character_name.ilike(character_name))
+                .one()
+            )
+        except NoResultFound:
+            await ctx.send("No character found by that name.")
+            return
+        except SQLAlchemyError:
+            await ctx.send("Something went wrong!")
+            return
+        already_in_inventory = (
+            self.session.query(Inventory)
+            .filter_by(character_id=character.id, item_id=item.id)
+            .first()
+        )
+        if already_in_inventory:
+            already_in_inventory.quantity += 1
+        else:
+            character.items.append(item)
+        try:
+            self.session.commit()
+        except SQLAlchemyError:
+            await ctx.send("Something went wrong!")
+            return
+        else:
+            await ctx.send(
+                f"{character.character_name.capitalize()} received {item.name.title()}!"
+            )
+
+    @commands.command()
+    @is_dm()
+    async def remove_item(self, ctx, character_name: str, *input: str):
+        """
+        !remove_item !remove_item Character Item
+        """
+        try:
+            item = (
+                self.session.query(Items)
+                .filter(Items.name.ilike(" ".join(input)))
+                .one()
+            )
+        except NoResultFound:
+            await ctx.send("No item found by that name.")
+            return
+        except SQLAlchemyError:
+            await ctx.send("Someting went wrong.")
+            return
+
+        try:
+            character = (
+                self.session.query(Characters)
+                .filter(Characters.character_name.ilike(character_name))
+                .one()
+            )
+        except NoResultFound:
+            await ctx.send("No character found by that name.")
+            return
+        except SQLAlchemyError:
+            await ctx.send("Something went wrong!")
+            return
+        has_item = (
+            self.session.query(Inventory)
+            .filter_by(character_id=character.id, item_id=item.id)
+            .first()
+        )
+        if has_item:
+            character.items.remove(item)
+            try:
+                self.session.commit()
+            except SQLAlchemyError:
+                await ctx.send("Something went wrong!")
+            else:
+                await ctx.send(
+                    f"Removed {item.name.title()} from {character.character_name.capitalize()}'s inventory."
+                )
+        else:
+            await ctx.send(f"{character.character_name} doesn't have that item.")
 
     @commands.command()
     @is_dm()
